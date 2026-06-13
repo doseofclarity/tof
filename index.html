@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Tetralogy of Fallot (TOF) | Blue Baby Syndrome | MCN Pillitteri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .transition-all { transition: all 0.3s ease; }
+        .recall-mode .reveal-text {
+            background-color: #cbd5e1;
+            color: transparent;
+            border-radius: 0.375rem;
+            padding: 0 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            box-shadow: inset 0 0 0 1px #94a3b8;
+        }
+        .recall-mode .reveal-text:hover,
+        .recall-mode .reveal-text.revealed {
+            background-color: #fef08a;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 8px; }
+        .content-section { animation: fade 0.3s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .quiz-feedback-correct { background-color: #dcfce7; border-left: 4px solid #22c55e; }
+        .quiz-feedback-wrong { background-color: #fee2e2; border-left: 4px solid #ef4444; }
+        .locked-section { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+        .flashcard { background: #fff; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; border: 1px solid #e2e8f0; }
+        .flashcard:hover { transform: translateY(-5px); }
+        .analogy-box { background: #dbeafe; border-left: 8px solid #2563eb; padding: 1rem; border-radius: 1rem; margin: 1rem 0; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { tof: { light: '#dbeafe', DEFAULT: '#1e3a8a', dark: '#1e3a8a' } } } }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row font-sans text-slate-800 overflow-hidden">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-tof-dark text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+        <button onclick="toggleMobileMenu()" class="text-white focus:outline-none z-40">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+        <h1 class="font-bold text-lg absolute left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <i class="fa-solid fa-heartbeat mr-2"></i> TOF
+        </h1>
+        <div class="w-8"></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-full md:w-80 bg-white shadow-2xl h-full absolute md:relative z-30 transition-transform duration-300 shrink-0 border-r border-slate-200">
+        <div class="p-6 bg-gradient-to-br from-tof-dark to-tof text-white hidden md:block shrink-0">
+            <h1 class="font-black text-2xl tracking-wide"><i class="fa-solid fa-heart-pulse mr-2"></i> Tetralogy of Fallot</h1>
+            <p class="text-sm text-blue-200 mt-1 font-medium">The most common cyanotic congenital heart defect | Pillitteri</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 text-sm font-medium">
+                <li><button onclick="showSection('home')" id="btn-home" class="nav-btn w-full text-left px-6 py-3 bg-tof-light text-tof-dark border-r-4 border-tof-dark transition-colors"><i class="fa-solid fa-house w-6 nav-icon"></i><i class="fa-solid fa-lock w-6 hidden"></i> Home / Start</button></li>
+                <li><button onclick="showSection('simple')" id="btn-simple" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-face-smile w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> TOF Like You're 5</button></li>
+                <li><button onclick="showSection('definition')" id="btn-definition" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-book-open w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Definition & Epidemiology</button></li>
+                <li><button onclick="showSection('pathophysiology')" id="btn-pathophysiology" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-chart-line w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> The 4 Defects & Pathophysiology</button></li>
+                <li><button onclick="showSection('clinical')" id="btn-clinical" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-stethoscope w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Clinical Features & Tet Spells</button></li>
+                <li><button onclick="showSection('diagnosis')" id="btn-diagnosis" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-microscope w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Diagnosis & Tests</button></li>
+                <li><button onclick="showSection('management')" id="btn-management" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-hand-holding-medical w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Treatment & Nursing Care</button></li>
+                <li><button onclick="showSection('complications')" id="btn-complications" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-triangle-exclamation w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Complications & Prognosis</button></li>
+                <li><button onclick="showSection('prevention')" id="btn-prevention" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-shield-heart w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Prevention & Family Education</button></li>
+                <li><button onclick="showSection('flashcards')" id="btn-flashcards" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-200 mt-2 locked-section"><i class="fa-solid fa-cards w-6 text-tof nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Flashcards & Mnemonics</button></li>
+                <li><button onclick="showSection('final_quiz_sec')" id="btn-final_quiz_sec" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-graduation-cap w-6 text-amber-500 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Final 50‑Item Exam</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto bg-slate-100 relative w-full">
+        <div class="fixed top-16 md:top-4 right-4 md:right-8 z-40 flex items-center bg-white/90 backdrop-blur px-4 py-3 rounded-full shadow-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleRecallMode()">
+            <span class="mr-3 text-sm font-bold text-slate-700 hidden md:inline"><i class="fa-solid fa-brain text-tof mr-1"></i> Active Recall</span>
+            <button id="recall-toggle" class="w-12 h-6 bg-slate-300 rounded-full relative transition-colors duration-300 focus:outline-none shadow-inner pointer-events-none">
+                <div id="recall-knob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow"></div>
+            </button>
+        </div>
+
+        <div class="p-4 md:p-8 max-w-6xl mx-auto pb-32">
+            <!-- HOME SECTION -->
+            <section id="home" class="content-section flex flex-col items-center justify-center min-h-[80vh] text-center block">
+                <div class="bg-gradient-to-br from-slate-800 to-tof-dark text-white rounded-3xl shadow-2xl p-10 md:p-16 w-full relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 text-white opacity-5 pointer-events-none"><i class="fa-solid fa-heartbeat text-[20rem]"></i></div>
+                    <div class="relative z-10">
+                        <div class="bg-white/10 backdrop-blur-sm inline-block p-4 rounded-full text-blue-300 mb-6 shadow-sm border border-white/20">
+                            <i class="fa-solid fa-hand-holding-heart text-5xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2 uppercase tracking-widest">Maternal & Child Health Nursing</h3>
+                        <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight drop-shadow-md">Tetralogy of Fallot (TOF)</h1>
+                        <div class="bg-white/10 backdrop-blur inline-block px-6 py-3 rounded-full mb-10 border border-white/20">
+                            <p class="text-lg text-white font-medium">"The most common cyanotic congenital heart defect – 'blue baby syndrome'." – Pillitteri</p>
+                        </div>
+                        <button onclick="unlockFirstSection()" class="bg-slate-600 hover:bg-slate-500 text-white font-black py-4 px-10 rounded-full shadow-xl transition-transform hover:scale-105 text-lg flex items-center mx-auto focus:outline-none">
+                            Start Learning TOF <i class="fa-solid fa-arrow-right ml-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- "TOF Like You're 5" -->
+            <section id="simple" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-face-smile text-tof mr-4"></i> TOF Explained Like You Are 5 Years Old</h2>
+                    <div class="analogy-box">
+                        <p class="text-lg font-bold">🧸 Imagine the heart is a house with 4 problems:</p>
+                        <p>🔴 <strong>Problem #1:</strong> A hole between the two big bottom rooms (VSD).<br>
+                        🔵 <strong>Problem #2:</strong> The door to the lungs is too narrow (Pulmonary stenosis).<br>
+                        🟡 <strong>Problem #3:</strong> The muscle walls of the bottom right room are extra thick.<br>
+                        🟢 <strong>Problem #4:</strong> The big door to the body sits right over the hole (Overriding aorta).</p>
+                        <p class="mt-3">Because the door to the lungs is small, some blue (oxygen‑poor) blood goes through the hole into the red side and out to the body – that makes babies look <strong class="text-blue-600">blue (cyanotic)</strong>.</p>
+                        <p>✅ Doctors can fix these problems with an operation so the child can run, play, and grow healthy!</p>
+                    </div>
+                    <div class="bg-blue-50 p-5 rounded-xl text-center mt-4">
+                        <i class="fa-solid fa-heart text-6xl text-tof"></i>
+                        <p class="font-bold mt-2">The 4 defects of Tetralogy of Fallot</p>
+                        <div class="grid grid-cols-2 gap-2 text-sm mt-2">
+                            <div>1. VSD (hole)</div>
+                            <div>2. Pulmonary stenosis (narrow)</div>
+                            <div>3. RV hypertrophy (thick muscle)</div>
+                            <div>4. Overriding aorta</div>
+                        </div>
+                        <svg width="200" height="150" viewBox="0 0 200 150" class="mx-auto mt-3">
+                            <path d="M100,40 C120,20 160,30 160,70 C160,110 100,140 100,140 C100,140 40,110 40,70 C40,30 80,20 100,40Z" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+                            <line x1="100" y1="40" x2="100" y2="140" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="5,5"/>
+                            <circle cx="100" cy="85" r="10" fill="#fef08a" stroke="#b45309" stroke-width="2"/>
+                            <text x="100" y="90" text-anchor="middle" font-size="8" fill="#b45309">VSD</text>
+                            <path d="M85,60 L90,50 L95,60" stroke="#dc2626" stroke-width="2" fill="none"/>
+                            <text x="75" y="55" font-size="8" fill="#dc2626">PS</text>
+                            <text x="125" y="80" font-size="8" fill="#1e3a8a">RVH</text>
+                            <text x="80" y="120" font-size="8" fill="#1e3a8a">Overriding aorta</text>
+                        </svg>
+                    </div>
+                    <button onclick="openQuiz('simple')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Definition & Epidemiology -->
+            <section id="definition" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-book-open text-tof mr-4"></i> Definition & Epidemiology</h2>
+                    <p><strong>Tetralogy of Fallot (TOF)</strong> – a congenital heart defect consisting of four anatomical abnormalities: ventricular septal defect (VSD), pulmonary stenosis, right ventricular hypertrophy, and overriding aorta. It is the most common cyanotic congenital heart defect.</p>
+                    <div class="grid md:grid-cols-2 gap-5 mt-4">
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>📊 Incidence</strong><br><span class="reveal-text">Occurs in 3‑6 per 10,000 live births. Accounts for 5‑7% of all congenital heart defects.</span></div>
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>🇵🇭 Philippines</strong><br><span class="reveal-text">TOF is the most common cyanotic CHD seen in Philippine hospitals. Approximately 300‑500 new cases diagnosed annually.</span></div>
+                    </div>
+                    <canvas id="tofChart" width="400" height="200" style="max-width:100%; margin-top:1rem;"></canvas>
+                    <div class="bg-blue-50 p-3 rounded-lg mt-4"><strong>⚠️ Key point:</strong> <span class="reveal-text">TOF is associated with 22q11.2 deletion (DiGeorge syndrome) in ~15% of cases.</span></div>
+                    <button onclick="openQuiz('definition')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- The 4 Defects & Pathophysiology -->
+            <section id="pathophysiology" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-chart-line text-tof mr-4"></i> The 4 Defects & Pathophysiology</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <strong>🔹 Four anomalies:</strong>
+                            <ol class="list-decimal pl-5 mt-1 space-y-1">
+                                <li><span class="reveal-text">Ventricular septal defect (VSD)</span></li>
+                                <li><span class="reveal-text">Pulmonary stenosis (infundibular or valvular)</span></li>
+                                <li><span class="reveal-text">Right ventricular hypertrophy (RVH)</span></li>
+                                <li><span class="reveal-text">Overriding aorta (aorta straddles the VSD)</span></li>
+                            </ol>
+                        </div>
+                        <div><strong>🩸 Hemodynamics</strong><br><span class="reveal-text">Degree of pulmonary stenosis determines shunt direction. Mild PS → left‑to‑right (acyanotic). Severe PS → right‑to‑left shunt (cyanotic). Deoxygenated blood enters systemic circulation → cyanosis.</span></div>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-lg mt-4"><strong>💡 Mnemonic for the 4 defects:</strong> <span class="reveal-text">"PROVe" – Pulmonary stenosis, Right ventricular hypertrophy, Overriding aorta, VSD.</span></div>
+                    <button onclick="openQuiz('pathophysiology')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Clinical Features & Tet Spells -->
+            <section id="clinical" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-stethoscope text-tof mr-4"></i> Clinical Features & Tet Spells</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div><strong>🔵 Classic signs</strong><br><span class="reveal-text">• Cyanosis (bluish skin) – may be present from birth or develop with crying/feeding<br>• Clubbing of fingers and toes after 6 months<br>• Systolic ejection murmur at left sternal border (from PS)<br>• Single S2 heart sound</span></div>
+                        <div><strong>⚠️ Hypercyanotic spells ("Tet spells")</strong><br><span class="reveal-text">Sudden episodes of deep cyanosis, tachypnea, irritability, and syncope. Often triggered by crying, feeding, or defecation. The infant assumes the "squatting position" (older child) to increase systemic vascular resistance.</span></div>
+                    </div>
+                    <div class="bg-red-50 p-3 rounded-lg mt-4"><strong>🚨 Emergency management for Tet spell:</strong> <span class="reveal-text">Knee‑chest position, calm the infant, oxygen, morphine, IV fluids, propranolol, or phenylephrine to increase afterload.</span></div>
+                    <button onclick="openQuiz('clinical')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Diagnosis -->
+            <section id="diagnosis" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-microscope text-tof mr-4"></i> Diagnosis & Tests</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Echocardiography (Doppler):</strong> <span class="reveal-text">Gold standard – visualizes all four defects and severity of PS.</span></li>
+                        <li><strong>Chest X‑ray:</strong> <span class="reveal-text">"Boot‑shaped" heart (coeur en sabot) due to RVH and upturned apex.</span></li>
+                        <li><strong>ECG:</strong> <span class="reveal-text">Right ventricular hypertrophy, right axis deviation.</span></li>
+                        <li><strong>Pulse oximetry:</strong> <span class="reveal-text">Decreased oxygen saturation (often 60‑80% in cyanotic episodes).</span></li>
+                        <li><strong>Cardiac catheterization:</strong> <span class="reveal-text">Pre‑surgical assessment of coronary anatomy and pulmonary arteries.</span></li>
+                    </ul>
+                    <div class="bg-green-50 p-3 rounded-lg mt-4"><strong>🔍 X‑ray sign:</strong> <span class="reveal-text">"Boot‑shaped heart" – classic finding in TOF.</span></div>
+                    <button onclick="openQuiz('diagnosis')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Treatment & Nursing Care -->
+            <section id="management" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-hand-holding-medical text-tof mr-4"></i> Treatment & Nursing Care</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div><strong>💊 Medical management</strong><br><span class="reveal-text">• Propranolol (to prevent and treat Tet spells)<br>• Oxygen during spells<br>• IV fluids and morphine for prolonged spells<br>• Iron supplementation (anemia worsens cyanosis)</span></div>
+                        <div><strong>⚕️ Surgical repair</strong><br><span class="reveal-text">Complete repair at 4‑6 months of age: patch closure of VSD, resection of pulmonary stenosis (outflow tract patch). Staged approach: palliative shunting (Blalock‑Taussig shunt) in severe cases, followed by complete repair later.</span></div>
+                    </div>
+                    <div class="bg-rose-50 p-3 rounded-lg mt-4"><strong>👩‍⚕️ Nursing priorities:</strong> <span class="reveal-text">Monitor oxygen saturation, prevent dehydration, position for tet spells (knee‑chest), teach parents signs of spell, prepare for surgery, provide emotional support.</span></div>
+                    <button onclick="openQuiz('management')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Complications & Prognosis -->
+            <section id="complications" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-triangle-exclamation text-tof mr-4"></i> Complications & Prognosis</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Untreated:</strong> <span class="reveal-text">Progressive cyanosis, polycythemia (increased RBCs), hyperviscosity, brain abscess, stroke, growth retardation, early death (usually by age 20 without surgery).</span></li>
+                        <li><strong>Post‑surgical:</strong> <span class="reveal-text">Residual pulmonary stenosis, pulmonary regurgitation, arrhythmias (ventricular tachycardia), right heart failure, sudden death (rare).</span></li>
+                        <li><strong>Prognosis:</strong> <span class="reveal-text">Excellent with complete repair: 95% survival to adulthood. Lifelong cardiology follow‑up required.</span></li>
+                    </ul>
+                    <div class="bg-yellow-50 p-3 rounded-lg mt-4"><strong>📈 Long‑term:</strong> <span class="reveal-text">Patients with repaired TOF need regular echocardiograms, exercise limitations, and endocarditis prophylaxis for the first 6 months after repair or if residual defects.</span></div>
+                    <button onclick="openQuiz('complications')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Prevention & Family Education -->
+            <section id="prevention" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-shield-heart text-tof mr-4"></i> Prevention & Family Education</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Prenatal:</strong> <span class="reveal-text">Folic acid (400‑800 mcg) preconception; avoid teratogens; control maternal diabetes; screen for 22q11.2 deletion in affected family.</span></li>
+                        <li><strong>Parent teaching:</strong> <span class="reveal-text">Recognize Tet spells (knee‑chest position, calm infant), administer propranolol as prescribed, monitor feeding and weight, keep well‑hydrated, prevent iron‑deficiency anemia.</span></li>
+                        <li><strong>Endocarditis prophylaxis:</strong> <span class="reveal-text">Not routinely indicated after complete repair without residual defect, but required for 6 months post‑surgery or if residual shunt.</span></li>
+                    </ul>
+                    <div class="bg-purple-50 p-3 rounded-lg mt-4"><strong>📞 Parent teaching mnemonic “S.P.E.L.L.”</strong> – Squat/knee‑chest, Propranolol, Emergency care, Learn triggers, Look for cyanosis.</div>
+                    <button onclick="openQuiz('prevention')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- Flashcards & Mnemonics -->
+            <section id="flashcards" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-tof pb-3"><i class="fa-solid fa-cards text-tof mr-4"></i> Flashcards & Mnemonics</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: Most common cyanotic CHD?</div><div class="flash-answer hidden mt-2">Tetralogy of Fallot</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: The 4 defects (mnemonic PROVe)</div><div class="flash-answer hidden mt-2">Pulmonary stenosis, Right ventricular hypertrophy, Overriding aorta, VSD</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: Classic X‑ray finding in TOF</div><div class="flash-answer hidden mt-2">Boot‑shaped heart (coeur en sabot)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: Position used for Tet spell</div><div class="flash-answer hidden mt-2">Knee‑chest position (squatting in older child)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: Medication to prevent Tet spells</div><div class="flash-answer hidden mt-2">Propranolol (beta‑blocker)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-tof">Q: Palliative shunt for TOF</div><div class="flash-answer hidden mt-2">Blalock‑Taussig shunt</div></div>
+                    </div>
+                    <div class="mt-6 bg-blue-50 p-4 rounded-xl"><strong>🧠 Mnemonics</strong><br><span class="reveal-text">“PROVe” – Pulmonary stenosis, Right ventricular hypertrophy, Overriding aorta, VSD.<br>“T.E.T.” – Tet spells: Triggers (crying, feeding), Emergency (knee‑chest), Treatment (propranolol).<br>“B.O.O.T.” – Boot‑shaped heart on X‑ray.<br>“S.P.E.L.L.” – Squat/knee‑chest, Propranolol, Emergency, Learn triggers, Look for cyanosis.</span></div>
+                    <button onclick="openQuiz('flashcards')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Final Exam</button>
+                </div>
+            </section>
+
+            <!-- FINAL EXAM SECTION -->
+            <section id="final_quiz_sec" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 text-center min-h-[60vh] flex flex-col justify-center items-center">
+                    <i class="fa-solid fa-graduation-cap text-8xl text-amber-500 mb-6"></i>
+                    <h2 class="text-4xl font-black text-slate-800 mb-4">Final 50‑Item Exam: Tetralogy of Fallot</h2>
+                    <p class="text-lg text-slate-600 mb-8 max-w-2xl">Covers all aspects: definition, epidemiology, the 4 defects, pathophysiology, clinical features, Tet spells, diagnosis, treatment, nursing care, complications, prevention, and mnemonics. Score ≥75% to pass.</p>
+                    <button onclick="openQuiz('final_quiz')" class="w-full max-w-md bg-slate-800 text-white font-black py-4 rounded-xl shadow-md text-xl">Start Final Exam</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- QUIZ MODAL -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeQuiz()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h2 id="quiz-title" class="text-3xl font-black text-slate-800 mb-2"></h2>
+            <div id="quiz-questions-container" class="space-y-4 mt-4"></div>
+            <button id="quiz-submit-btn" onclick="submitQuiz()" class="mt-8 w-full bg-tof text-white font-bold py-4 rounded-xl shadow-lg">Submit Answers</button>
+            <div id="quiz-result-container" class="hidden mt-6 p-4 rounded-xl bg-slate-100"></div>
+        </div>
+    </div>
+
+    <script>
+        // QUIZ DATA (10 questions each for sections)
+        const quizzes = {
+            simple: { title: "TOF Like You're 5", next: "definition", questions: [
+                { q: "In the heart house analogy, which door is too narrow?", options: ["Door to lungs","Door to body","Door to brain","Door to legs"], ans: 0 },
+                { q: "What color do babies with TOF become because of low oxygen?", options: ["Yellow","Blue (cyanotic)","Red","Green"], ans: 1 },
+                { q: "How many problems does TOF have in the heart?", options: ["1","2","3","4"], ans: 3 },
+                { q: "What is the hole between the bottom rooms called?", options: ["ASD","VSD","PDA","COA"], ans: 1 },
+                { q: "Can doctors fix TOF with surgery?", options: ["No, never","Yes, most children do well after surgery","Only with medicine","Only as an adult"], ans: 1 }
+            ] },
+            definition: { title: "Definition & Epidemiology", next: "pathophysiology", questions: [
+                { q: "Tetralogy of Fallot is the most common:", options: ["Acyanotic CHD","Cyanotic CHD","Valvular disease","Vascular ring"], ans: 1 },
+                { q: "Estimated incidence of TOF per 10,000 live births is:", options: ["1‑2","3‑6","10‑15","20‑25"], ans: 1 },
+                { q: "Which genetic syndrome is associated with TOF in ~15% of cases?", options: ["Down syndrome","22q11.2 deletion (DiGeorge)","Turner syndrome","Klinefelter syndrome"], ans: 1 },
+                { q: "In the Philippines, TOF accounts for what percentage of cyanotic CHD?", options: ["<10%","Most common cyanotic CHD","Second most common","Rare"], ans: 1 },
+                { q: "The term 'tetralogy' refers to:", options: ["Two defects","Three defects","Four defects","Five defects"], ans: 2 }
+            ] },
+            pathophysiology: { title: "The 4 Defects & Pathophysiology", next: "clinical", questions: [
+                { q: "Which of the following is NOT one of the four defects?", options: ["Pulmonary stenosis","Atrial septal defect","Overriding aorta","Right ventricular hypertrophy"], ans: 1 },
+                { q: "The mnemonic for the 4 defects is:", options: ["VSD","PROVe","ASD","PDA"], ans: 1 },
+                { q: "In TOF, the shunt direction depends on:", options: ["Severity of pulmonary stenosis","Size of VSD","Age of child","Heart rate"], ans: 0 },
+                { q: "What causes cyanosis in TOF?", options: ["Left‑to‑right shunt","Right‑to‑left shunt with deoxygenated blood entering systemic circulation","Pulmonary overcirculation","High cardiac output"], ans: 1 },
+                { q: "Right ventricular hypertrophy in TOF is:", options: ["Primary defect","Secondary to pulmonary stenosis","Always present at birth","Unrelated"], ans: 1 }
+            ] },
+            clinical: { title: "Clinical Features & Tet Spells", next: "diagnosis", questions: [
+                { q: "Classic murmur in TOF is:", options: ["Diastolic murmur","Systolic ejection murmur at left sternal border","Continuous murmur","Pericardial rub"], ans: 1 },
+                { q: "A hypercyanotic spell is also called:", options: ["Tet spell","Eisenmenger spell","Adams‑Stokes","Reye spell"], ans: 0 },
+                { q: "The emergency position for a Tet spell is:", options: ["Supine","Trendelenburg","Knee‑chest","Left lateral"], ans: 2 },
+                { q: "Older children with TOF instinctively assume what position to relieve symptoms?", options: ["Lying flat","Squatting","Standing on head","Running"], ans: 1 },
+                { q: "Clubbing of fingers in TOF is caused by:", options: ["Chronic hypoxemia","Polycythemia","Both A and B","Heart failure"], ans: 2 }
+            ] },
+            diagnosis: { title: "Diagnosis & Tests", next: "management", questions: [
+                { q: "Gold standard for diagnosing TOF is:", options: ["Chest X‑ray","ECG","Echocardiography","Cardiac MRI"], ans: 2 },
+                { q: "Classic X‑ray finding in TOF is:", options: ["Egg on side","Boot‑shaped heart","Snowman appearance","Straight left heart border"], ans: 1 },
+                { q: "ECG in TOF typically shows:", options: ["Left ventricular hypertrophy","Right ventricular hypertrophy","Atrial fibrillation","Normal"], ans: 1 },
+                { q: "Pulse oximetry in a child with cyanotic TOF may reveal:", options: ["100% saturation","60‑80% saturation","Normal saturation","Hyperoxia"], ans: 1 },
+                { q: "Pre‑surgical catheterization in TOF is used to:", options: ["Measure pressures and coronary anatomy","Treat the defect","Replace valves","None"], ans: 0 }
+            ] },
+            management: { title: "Treatment & Nursing Care", next: "complications", questions: [
+                { q: "Medication commonly used to prevent Tet spells is:", options: ["Digoxin","Furosemide","Propranolol","Captopril"], ans: 2 },
+                { q: "Complete surgical repair of TOF is typically performed at age:", options: ["Birth","4‑6 months","2 years","5 years"], ans: 1 },
+                { q: "Palliative shunt used in severe TOF is called:", options: ["Blalock‑Taussig shunt","Fontan procedure","Norwood procedure","Ross procedure"], ans: 0 },
+                { q: "During a Tet spell, the nurse should immediately place the infant in:", options: ["Knee‑chest position","Supine with legs elevated","Prone","Sitting upright"], ans: 0 },
+                { q: "Post‑surgical nursing care includes:", options: ["Monitor for arrhythmias, residual shunt, infection","Only temperature","Only feeding","None"], ans: 0 }
+            ] },
+            complications: { title: "Complications & Prognosis", next: "prevention", questions: [
+                { q: "Untreated TOF can lead to:", options: ["Polycythemia","Brain abscess","Stroke","All of the above"], ans: 3 },
+                { q: "Survival to adulthood after complete repair is approximately:", options: ["50%","75%","95%","100%"], ans: 2 },
+                { q: "Long‑term complication after TOF repair includes:", options: ["Pulmonary regurgitation","Ventricular arrhythmias","Right heart failure","All of the above"], ans: 3 },
+                { q: "Polycythemia in cyanotic TOF increases risk of:", options: ["Thrombosis and stroke","Anemia","Bleeding","Infection"], ans: 0 },
+                { q: "Average life expectancy for an infant with untreated TOF is:", options: ["Less than 1 year","Less than 20 years","Normal","Over 50 years"], ans: 1 }
+            ] },
+            prevention: { title: "Prevention & Family Education", next: "flashcards", questions: [
+                { q: "Which vitamin helps prevent congenital heart defects?", options: ["Vitamin C","Folic acid","Vitamin D","Vitamin B12"], ans: 1 },
+                { q: "Parent teaching for Tet spells includes:", options: ["How to position child (knee‑chest)","Give extra fluids","Administer propranolol as prescribed","All of the above"], ans: 3 },
+                { q: "Endocarditis prophylaxis after complete TOF repair is recommended:", options: ["For life","For 6 months after surgery only if no residual shunt","Never","Only before dental work"], ans: 1 },
+                { q: "The mnemonic for parent teaching is:", options: ["S.P.E.L.L.","C.A.R.E.","H.E.L.P.","F.A.S.T."], ans: 0 },
+                { q: "Children with repaired TOF should have lifelong:", options: ["Cardiology follow‑up","No follow‑up","Only one visit","Only if symptoms"], ans: 0 }
+            ] },
+            flashcards: { title: "Flashcards & Mnemonics", next: "final_quiz_sec", questions: [
+                { q: "Most common cyanotic CHD?", options: ["TOF","TGA","TAPVR","Truncus"], ans: 0 },
+                { q: "Mnemonic for the 4 defects?", options: ["PROVe","VSD","ASD","PDA"], ans: 0 },
+                { q: "Classic X‑ray sign in TOF?", options: ["Boot‑shaped heart","Egg on side","Snowman","Scimitar"], ans: 0 },
+                { q: "Position for Tet spell?", options: ["Knee‑chest","Supine","Trendelenburg","Prone"], ans: 0 },
+                { q: "Medication to prevent Tet spells?", options: ["Propranolol","Digoxin","Furosemide","Spironolactone"], ans: 0 }
+            ] }
+        };
+        // Build final 50-item exam
+        let finalQ = [];
+        for(let sec of ['simple','definition','pathophysiology','clinical','diagnosis','management','complications','prevention','flashcards']) {
+            if(quizzes[sec]) finalQ.push(...quizzes[sec].questions.slice(0,6));
+        }
+        while(finalQ.length < 50) finalQ.push({ q: "The palliative shunt for TOF is named after:", options: ["Blalock and Taussig","Fontan","Norwood","Rastelli"], ans: 0 });
+        quizzes.final_quiz = { title: "Final 50-Item Exam: Tetralogy of Fallot (TOF)", next: null, questions: finalQ };
+
+        let unlockedSections = ['home'];
+        let tofChart = null;
+
+        function initCharts() {
+            const ctx = document.getElementById('tofChart')?.getContext('2d');
+            if(ctx && !tofChart) {
+                tofChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['TOF', 'TGA', 'TAPVR', 'Truncus', 'Other cyanotic'],
+                        datasets: [{ label: 'Relative frequency among cyanotic CHD (%)', data: [45, 25, 10, 8, 12], backgroundColor: '#1e3a8a', borderRadius: 6 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+        }
+
+        function toggleFlash(el) { const ans = el.querySelector('.flash-answer'); if(ans) ans.classList.toggle('hidden'); }
+        function unlockFirstSection() { if(!unlockedSections.includes('simple')) { unlockedSections.push('simple'); updateSidebarUI(); } showSection('simple'); }
+        function showSection(sectionId) {
+            if (!unlockedSections.includes(sectionId) && sectionId !== 'home') { alert("Complete the Active Recall Quiz at the bottom of the previous section to unlock."); return; }
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(sectionId)?.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-tof-light','text-tof-dark','border-r-4','border-tof-dark'));
+            const activeBtn = document.getElementById('btn-'+sectionId);
+            if(activeBtn) activeBtn.classList.add('bg-tof-light','text-tof-dark','border-r-4','border-tof-dark');
+            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('hidden');
+            if(sectionId === 'definition' && !tofChart) setTimeout(initCharts, 50);
+        }
+        function updateSidebarUI() {
+            const sections = ['home','simple','definition','pathophysiology','clinical','diagnosis','management','complications','prevention','flashcards','final_quiz_sec'];
+            sections.forEach(sec => {
+                const btn = document.getElementById('btn-'+sec);
+                if(!btn) return;
+                const lock = btn.querySelector('.fa-lock'), icon = btn.querySelector('.nav-icon');
+                if(unlockedSections.includes(sec) || sec==='home') { btn.classList.remove('locked-section'); if(lock) lock.classList.add('hidden'); if(icon) icon.classList.remove('hidden'); }
+                else { btn.classList.add('locked-section'); if(lock) lock.classList.remove('hidden'); if(icon) icon.classList.add('hidden'); }
+            });
+        }
+        let currentQuiz=null;
+        function openQuiz(sectionId) { currentQuiz = sectionId; const qd = quizzes[sectionId]; if(!qd) return; document.getElementById('quiz-title').innerHTML = qd.title; const container = document.getElementById('quiz-questions-container'); container.innerHTML = ''; qd.questions.forEach((q, idx) => { let html = `<div class="bg-slate-50 p-4 rounded-xl mb-4"><p class="font-bold mb-3">${idx+1}. ${q.q}</p><div class="space-y-2">`; q.options.forEach((opt,oi) => { html += `<label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white cursor-pointer"><input type="radio" name="q${idx}" value="${oi}" class="form-radio text-tof"><span>${opt}</span></label>`; }); html += `</div><div class="feedback-${idx} text-sm mt-2 hidden"></div></div>`; container.innerHTML += html; }); document.getElementById('quiz-submit-btn').classList.remove('hidden'); document.getElementById('quiz-result-container').classList.add('hidden'); document.getElementById('quiz-modal').classList.remove('hidden'); }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
+        function submitQuiz() {
+            const qd = quizzes[currentQuiz];
+            if(!qd) return;
+            let score = 0;
+            for(let i=0; i<qd.questions.length; i++) {
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                if(sel && parseInt(sel.value)===qd.questions[i].ans) score++;
+                const fbDiv = document.querySelector(`.feedback-${i}`);
+                if(fbDiv){
+                    fbDiv.classList.remove('hidden');
+                    const correctTxt = qd.questions[i].options[qd.questions[i].ans];
+                    if(sel && parseInt(sel.value)===qd.questions[i].ans) { fbDiv.innerHTML='<span class="text-green-700">✓ Correct</span>'; fbDiv.parentElement?.classList.add('quiz-feedback-correct'); }
+                    else { const selectedTxt = sel? qd.questions[i].options[parseInt(sel.value)]:"No answer"; fbDiv.innerHTML=`<span class="text-red-700">✗ Incorrect. Correct: ${correctTxt}. You answered: ${selectedTxt}</span>`; fbDiv.parentElement?.classList.add('quiz-feedback-wrong'); }
+                }
+            }
+            let percent = (score/qd.questions.length)*100;
+            let resultDiv = document.getElementById('quiz-result-container');
+            document.getElementById('quiz-submit-btn').classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            if(percent>=75){
+                if(currentQuiz==='final_quiz'){ resultDiv.innerHTML=`<div class="text-green-600 text-4xl text-center">🎉 Excellent! Score ${score}/${qd.questions.length} (${percent}%)<br>You mastered Tetralogy of Fallot!</div><button onclick="closeQuiz()" class="mt-4 bg-tof text-white px-6 py-2 rounded-xl">Close</button>`; return; }
+                if(quizzes[currentQuiz].next && !unlockedSections.includes(quizzes[currentQuiz].next)) unlockedSections.push(quizzes[currentQuiz].next);
+                if(quizzes[currentQuiz].next === 'flashcards' && !unlockedSections.includes('final_quiz_sec')) unlockedSections.push('final_quiz_sec');
+                updateSidebarUI();
+                resultDiv.innerHTML=`<div class="text-green-600 text-3xl text-center">✅ Passed! (${score}/${qd.questions.length})</div><button onclick="closeQuiz(); showSection('${quizzes[currentQuiz].next}')" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl">Unlock Next Section</button>`;
+            } else { resultDiv.innerHTML=`<div class="text-red-600 text-3xl text-center">❌ Failed: ${score}/${qd.questions.length} (${percent}%)<br>Need 75%</div><button onclick="openQuiz('${currentQuiz}')" class="mt-4 bg-slate-600 text-white px-6 py-2 rounded-xl">Try Again</button>`; }
+        }
+        function toggleRecallMode() { const active = !document.body.classList.contains('recall-mode'); const toggle=document.getElementById('recall-toggle'),knob=document.getElementById('recall-knob'); if(active){ document.body.classList.add('recall-mode'); toggle.classList.add('bg-tof-dark'); knob.classList.add('translate-x-6'); } else { document.body.classList.remove('recall-mode'); toggle.classList.remove('bg-tof-dark'); knob.classList.remove('translate-x-6'); } }
+        function toggleMobileMenu() { const s=document.getElementById('sidebar'); if(s.classList.contains('hidden')) s.classList.remove('hidden','flex','absolute','h-full','z-50'); else s.classList.add('hidden'); }
+        document.addEventListener('DOMContentLoaded', () => { updateSidebarUI(); document.querySelectorAll('.reveal-text').forEach(el => el.addEventListener('click', function(){ if(document.body.classList.contains('recall-mode')) this.classList.toggle('revealed'); })); });
+    </script>
+</body>
+</html>
